@@ -2,9 +2,6 @@ import cv2
 import numpy as np
 
 
-# image=cv2.erode(image,(3,3),iterations=6)
-# image=cv2.dilate(image,(3,3),iterations=2)
-
 def crop(image, firstPass=False):
     global squares
     edges = cv2.Canny(image, 50, 150)
@@ -27,29 +24,31 @@ def crop(image, firstPass=False):
     # print(squares)
     squares = sorted(squares, key=cv2.contourArea, reverse=True)
     squares = squares[:3]
-    # Draw the selected squares
+    print(cv2.minAreaRect(squares[0]))
     # image = cv2.cvtColor(image, cv2.COLOR_GRAY2BGR)
     # cv2.drawContours(image, squares, -1, (0, 255, 0), 2)
+
+    # Draw the selected squares
     if len(squares) >= 3:
         x1, y1, w1, h1 = cv2.boundingRect(squares[0])
-    x2, y2, w2, h2 = cv2.boundingRect(squares[1])
-    x3, y3, w3, h3 = cv2.boundingRect(squares[2])
+        x2, y2, w2, h2 = cv2.boundingRect(squares[1])
+        x3, y3, w3, h3 = cv2.boundingRect(squares[2])
 
     # Determine the y-axis range for cropping
-    y_start = min(y1, y2, y3)
-    y_end = max(y1 + h1, y2 + h2, y3 + h3)
+        y_start = min(y1, y2, y3)
+        y_end = max(y1 + h1, y2 + h2, y3 + h3)
 
-    x_start = min(x1, x2, x3)
-    x_end = max(x1 + w1, x2 + w2, x3 + w3)
+        x_start = min(x1, x2, x3)
+        x_end = max(x1 + w1, x2 + w2, x3 + w3)
 
     # Crop the image
-    if (firstPass):
-        cropped_image = image[y_start - 10:y_end + 10, x_start - 10:x_end + 10]
-    else:
-        cropped_image = image[y_start:y_end, x_start:x_end]
+        if (firstPass):
+            cropped_image=image
+        # cropped_image = image[y_start - 10:y_end + 10, x_start - 10:x_end + 10]
+        else:
+            cropped_image = image[y_start:y_end, x_start:x_end]
 
     # cropped_image = cv2.cvtColor(cropped_image, cv2.COLOR_BGR2GRAY)
-    #
 
     # cropped_image=cv2.resize(cropped_image,(420,420))
 
@@ -63,8 +62,9 @@ def align(img):
 
     # Compute rotated bounding box
     coords = np.column_stack(np.where(thresh > 0))
+    # print("angle",cv2.minAreaRect(squares[1])[-1])
     angle = cv2.minAreaRect(coords)[-1]
-
+    angle=-cv2.minAreaRect(squares[1])[-1]
     if angle < -45:
         angle = -(90 + angle)
     else:
@@ -93,7 +93,7 @@ def align(img):
     # print(type(cropped_image))
 
 
-image = cv2.imread("QR.jpg")
+image = cv2.imread("tilted.jpg")
 image = cv2.resize(image, (0, 0), fx=0.25, fy=0.25)
 ret, image = cv2.threshold(image, 120, 255, cv2.THRESH_BINARY)
 # image = np.where(image>50,255,0).astype('uint8')
@@ -107,17 +107,17 @@ sharpening_kernel = np.array([[-1, -1, -1],
 
 # Apply the sharpening kernel using filter2D
 image = cv2.filter2D(gray_img, -1, sharpening_kernel)
-
+image = cv2.medianBlur(image, 3)
+# image =align(image)
 cropped_image = crop(image, True)
 cropped_image = align(cropped_image)
 cropped_image = crop(cropped_image)
 # cropped_image=cv2.resize(cropped_image,(100,100))
-
+print(squares)
 ret, cropped_image = cv2.threshold(cropped_image, 120, 255, cv2.THRESH_BINARY)
 
-cropped_image=cv2.erode(cropped_image,(3,3),iterations=1)
-cropped_image=cv2.dilate(cropped_image,(3,3),iterations=1)
-cropped_image=cv2.resize(cropped_image,(21,21))
+cropped_image = cv2.erode(cropped_image, (3, 3), iterations=1)
+cropped_image = cv2.dilate(cropped_image, (3, 3), iterations=1)
+cropped_image = cv2.resize(cropped_image, (21, 21))
 
-
-cv2.imwrite("cropped_image.jpg", cropped_image)
+cv2.imwrite("ti.jpg", cropped_image)
