@@ -26,6 +26,7 @@ def calculate_ascii(array, down=False):
         s = s + array[i] * array_mask[i]
     return s
 
+
 image = cv2.imread("cropped_image.jpg", cv2.IMREAD_GRAYSCALE)
 for i in range(21):
     for j in range(21):
@@ -42,8 +43,11 @@ for i in range(21):
 # Define the mask based on the version
 mask = []
 version = 1
+matrix_size = 0
 if version == 1:
     mask = image.copy()[8, 2:5]
+    matrix_size = 21
+    forbidden_row = 9
 
 for i in range(21):
     for j in range(21):
@@ -57,39 +61,57 @@ mode_indicator = ((image[19:21, 19:21]).flatten())[::-1]
 print("The mode indicator is:", mode_indicator)
 if np.array_equal(mode_indicator, [0, 1, 0, 0]):
     print("The encoding mode is byte")
+matrix_size = 21
+length = (image[matrix_size - 6:matrix_size - 2, matrix_size - 2:matrix_size])
+print(calculate_ascii(length))
+a = matrix_size - 6
+b = matrix_size - 2
+c = matrix_size - 2
+d = matrix_size
+word = ""
+# for loop 0 to 13
+down = False
+enable_down = False
+letter = 1
+while True:
+    print("letter: ", letter)
+    letter = letter + 1
+    if a - 4 > forbidden_row and down == False and b < matrix_size:  # up
+        print("case 1")
+        b = a
+        a = a - 4
+    elif a - 2 >= forbidden_row and down == False and b < matrix_size:  # up_left
+        print("case 2")
+        b = a
+        a = a - 2
+        c = c - 2
+        enable_down = True
+    elif down and a + 4 < matrix_size and a == forbidden_row:  # down
+        print("case 3")
+        a = a + 2
+        b = b + 4
+        d = d - 2
+    elif down and b + 4 < matrix_size:  # down
+        print("case 4")
+        a = a + 4
+        b = b + 4
+    elif down and b + 2 == matrix_size:  # down_left
+        print("case 5")
+        a = a + 4
+        b = b + 2
+        c = c - 2
+        d - 2
+        enable_down = False
+    elif b - 2 < matrix_size:  # up_after_down
+        a = a - 4
+        b = b - 2
+        d = d - 2
+        print("case 6")
+    v = (image[a:b, c:d])
 
-# Now get the 8 values above these 4 values, store them in a list, and reverse the list
-length = (image[15:19, 19:21])
-# First letter:
-v1 = (image[11:15, 19:21])
-v2 = (image[9:11, 17:21])
-
-v3 = (image[11:15, 17:19])
-
-v4 = (image[15:19, 17:19])
-
-v5 = (image[19:21, 15:19])
-
-v6 = (image[15:19, 15:17])
-
-v7 = (image[11:15, 15:17])
-
-v8 = (image[9:11, 13:17])
-
-v9 = (image[11:15, 13:15])
-
-# Continue this pattern for the remaining values
-v10 = (image[15:19, 13:15])
-
-v11 = (image[19:21, 11:15])
-
-v12 = (image[15:19, 11:13])
-
-v13 = (image[11:15, 11:13])
-
-print("The Decoded QR code is:",
-      chr(calculate_ascii(v1)) + chr(calculate_ascii(v2)) + chr(calculate_ascii(v3, True)) + chr(
-          calculate_ascii(v4, True)) + chr(calculate_ascii(v5, True)) + chr(calculate_ascii(v6)) + chr(
-          calculate_ascii(v7)) + chr(calculate_ascii(v8)) + chr(calculate_ascii(v9, True)) + chr(
-          calculate_ascii(v10, True)) + chr(calculate_ascii(v11, True)) + chr(calculate_ascii(v12)) + chr(
-          calculate_ascii(v13)))
+    print(a, b, c, d)
+    word = word + chr(calculate_ascii(v, down))
+    down = enable_down
+    if len(word) == (calculate_ascii(length)) - 1:
+        print("The Decoded QR code is:", word)
+        break
