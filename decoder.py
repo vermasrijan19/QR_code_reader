@@ -27,7 +27,7 @@ def calculate_ascii(array, down=False):
     return s
 
 
-image = cv2.imread("cropped_image.jpg", cv2.IMREAD_GRAYSCALE)
+image = cv2.imread("QR/this is some u/Detected.jpg", cv2.IMREAD_GRAYSCALE)
 for i in range(21):
     for j in range(21):
         if image[i][j] > 50:
@@ -48,6 +48,8 @@ if version == 1:
     mask = image.copy()[8, 2:5]
     matrix_size = 21
     forbidden_row = 9
+else:
+    forbidden_row = 0
 
 for i in range(21):
     for j in range(21):
@@ -74,13 +76,17 @@ down = False
 enable_down = False
 letter = 1
 while True:
+    if 10 <= c < 13:
+        forbidden_row = 7
+    else:
+        forbidden_row = 9
     print("letter: ", letter)
     letter = letter + 1
-    if a - 4 > forbidden_row and down == False and b < matrix_size:  # up
+    if a - 4 >= forbidden_row and down is False and b < matrix_size:  # up
         print("case 1")
         b = a
         a = a - 4
-    elif a - 2 >= forbidden_row and down == False and b < matrix_size:  # up_left
+    elif a > forbidden_row and down is False and b < matrix_size:  # up_left
         print("case 2")
         b = a
         a = a - 2
@@ -111,7 +117,8 @@ while True:
 
     print(a, b, c, d)
     word = word + chr(calculate_ascii(v, down))
+    print(len(word))
     down = enable_down
-    if len(word) == (calculate_ascii(length)) - 1:
+    if len(word) >= (calculate_ascii(length)) :
         print("The Decoded QR code is:", word)
         break
