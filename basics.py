@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 
-image = cv2.imread("QR.jpg")
+image = cv2.imread("Images/old images/QR.jpg")
 image = cv2.resize(image,(0,0),fx=0.25,fy=0.25)
 ret,image=cv2.threshold(image, 120, 255, cv2.THRESH_BINARY)
 # image = np.where(image>50,255,0).astype('uint8')

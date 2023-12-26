@@ -27,7 +27,7 @@ def calculate_ascii(array, down=False):
     return s
 
 
-image = cv2.imread("QR/this is some u/Detected.jpg", cv2.IMREAD_GRAYSCALE)
+image = cv2.imread("Images/qrcode/Detected.jpg", cv2.IMREAD_GRAYSCALE)
 for i in range(21):
     for j in range(21):
         if image[i][j] > 50:

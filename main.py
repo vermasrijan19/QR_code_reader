@@ -79,7 +79,7 @@ def align(img):
     return rotated
 
 
-image_name = "Images/this is some u.png"
+image_name = "Images/old images/tilted.jpg"
 folder_name = image_name.split(".")[0]
 image = cv2.imread(image_name)
 image = cv2.resize(image, (0, 0), fx=0.25, fy=0.25)
