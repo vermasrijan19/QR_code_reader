@@ -16,5 +16,5 @@ for row in range(image.shape[0]):
             value.append(0)
 og_value = value.copy()
 for i in range(len(key)):
-    value[i]= og_value[key[i]]
+    value[i] = og_value[key[i]]
 print(value)

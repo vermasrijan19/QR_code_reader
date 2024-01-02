@@ -5,7 +5,7 @@ import numpy as np
 
 
 def display(img):
-    # img = cv2.resize(img, (0, 0), fx=0.25, fy=0.25)
+    img = cv2.resize(img, (0, 0), fx=0.25, fy=0.25)
     cv2.imshow("edges", img)
     cv2.waitKey(0)
 
@@ -22,8 +22,11 @@ def crop(image, firstPass=False):
     global squares
     img = image.copy()
     image = histogram_equalize(image)
-    edges = cv2.Canny(image, 0, 125)
-    # display(edges)
+    ret, image = cv2.threshold(image, 128, 255, cv2.THRESH_BINARY)
+    # image=cv2.dilate(image, (3, 3), iterations=25)
+    image = cv2.medianBlur(image, 7)
+    edges = cv2.Canny(image, 0, 100)
+    display(edges)
     contours, _ = cv2.findContours(edges.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     squares = []
     for contour in contours:
@@ -43,7 +46,7 @@ def crop(image, firstPass=False):
     print(len(squares))
     squares = sorted(squares, key=cv2.contourArea, reverse=True)
     cv2.drawContours(image, squares, -1, (0, 255, 0), 3)
-    # display(image)
+    display(image)
 
     squares = squares[:1]
     # print(cv2.minAreaRect(squares[0]))
@@ -61,7 +64,7 @@ def crop(image, firstPass=False):
     return cropped_image
 
 
-image_name = "Images/excel.png"
+image_name = "Extreme.jpg"
 
 folder_name = image_name.split(".")[0]
 image = cv2.imread(image_name)
@@ -72,17 +75,16 @@ og_img = image.copy()
 image = cv2.medianBlur(image, 3)
 
 image = crop(image, False)
-# display(image)
-# display(image)
+# cv2.cvtColor(image, cv2.COLOR_rgb)
 image = cv2.resize(image, (3, 3), interpolation=None)
-for row in range(image.shape[0]):
-    for col in range(image.shape[1]):
-        if image[row][col][0] > image[row][col][1] and image[row][col][0] > image[row][col][2]:
-            image[row][col] = [255, 0,0]
-        elif image[row][col][1] > image[row][col][0] and image[row][col][1] > image[row][col][2]:
-            image[row][col] = [0, 255,0]
-        elif image[row][col][2] > image[row][col][0] and image[row][col][2] > image[row][col][1]:
-            image[row][col] = [0, 0,255]
+# for row in range(image.shape[0]):
+#     for col in range(image.shape[1]):
+#         if image[row][col][0] > image[row][col][1] and image[row][col][0] > image[row][col][2]:
+#             image[row][col] = [image[row][col][0], 0,0]
+#         elif image[row][col][1] > image[row][col][0] and image[row][col][1] > image[row][col][2]:
+#             image[row][col] = [0, image[row][col][1],0]
+#         elif image[row][col][2] > image[row][col][0] and image[row][col][2] > image[row][col][1]:
+#             image[row][col] = [0, 0,image[row][col][2]]
 
 
 
